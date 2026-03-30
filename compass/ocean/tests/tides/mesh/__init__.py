@@ -1,7 +1,8 @@
-from compass.testcase import TestCase
 from compass.mesh.spherical import IcosahedralMeshStep
-from compass.ocean.tests.tides.configure import configure_tides
 from compass.ocean.mesh.cull import CullMeshStep
+from compass.ocean.mesh.remap_topography import RemapTopography
+from compass.ocean.tests.tides.configure import configure_tides
+from compass.testcase import TestCase
 
 
 class Mesh(TestCase):
@@ -38,9 +39,14 @@ class Mesh(TestCase):
 
         self.add_step(base_mesh_step)
 
+        remap_step = RemapTopography(test_case=self,
+                                     base_mesh_step=base_mesh_step,
+                                     mesh_name=mesh_name)
+        self.add_step(remap_step)
+
         self.add_step(CullMeshStep(
             test_case=self, base_mesh_step=base_mesh_step,
-            with_ice_shelf_cavities=True))
+            with_ice_shelf_cavities=True, unsmoothed_topo=remap_step))
 
     def configure(self):
         """
